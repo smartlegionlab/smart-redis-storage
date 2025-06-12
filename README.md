@@ -1,4 +1,4 @@
-# smart-redis-storage <sup>0.1.2</sup>
+# smart-redis-storage <sup>0.1.3</sup>
 Redis storage manager.
 
 ***
