@@ -1,5 +1,6 @@
-# smart-redis-storage <sup>0.1.3</sup>
-Redis storage manager.
+# smart-redis-storage <sup>0.2.3</sup>
+
+A lightweight and efficient Redis storage manager for Python applications. Provides simple CRUD (Create, Read, Update, Delete) operations with JSON serialization and hash-based data organization.
 
 ***
 
@@ -16,52 +17,265 @@ Redis storage manager.
 
 ***
 
-Author and developer: ___A.A. Suvorov___
+## Features
+
+- **Simple CRUD Operations**: Easy-to-use methods for Create, Read, Update, and Delete operations
+- **JSON Serialization**: Automatic serialization and deserialization of Python objects
+- **Hash-based Storage**: Organized data storage using Redis hashes with unique keys
+- **TTL Support**: Configurable expiration time for stored data
+- **Thread-safe**: Built on Redis-py, suitable for multi-threaded applications
+- **Flexible Data Structure**: Store multiple key-value pairs under a single unique identifier
 
 ***
 
-## Help:
+## Installation
 
-`pip install smart-redis-storage`
+```bash
+pip install smart-redis-storage
+```
 
-> CRUD (Create, Read, Update, Delete) for Redis.
-> Used in a large corporate project in a multi-user CRM (Django) to store intermediate data.
-> I used user ids as uniq_key.
-> 
-> 
+## Requirements
+
+- Python 3.6+
+- Redis server
+- redis-py library
+
+***
+
+## Quick Start
 
 ```python
 from smart_redis_storage.redis_storage import RedisStorageManager
 
-user_id = 1
-redis_storage_manager = RedisStorageManager()
-redis_storage_manager.set_data(uniq_key=user_id, key='data', value={'id': 1, 'age': 33})
-data = redis_storage_manager.get_data(uniq_key=user_id, key='data')
-print(data) # {'id': 1, 'age': 33}
-print(type(data)) # <class 'dict'>
+# Initialize with default Redis connection (localhost:6379)
+redis_storage = RedisStorageManager()
+
+# Store user data
+user_id = 123
+redis_storage.set_data(
+    uniq_key=user_id, 
+    key='profile', 
+    value={'name': 'John', 'age': 30, 'email': 'john@example.com'}
+)
+
+# Retrieve user data
+profile = redis_storage.get_data(uniq_key=user_id, key='profile')
+print(profile)  # {'name': 'John', 'age': 30, 'email': 'john@example.com'}
+
+# Store with expiration (30 seconds)
+redis_storage.set_data(
+    uniq_key=user_id,
+    key='session_data',
+    value={'token': 'abc123', 'last_login': '2024-01-01'},
+    expiration=30
+)
 ```
 
 ***
 
-## Disclaimer of liability:
+## Advanced Usage
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+### Custom Redis Connection
+
+```python
+# Connect to custom Redis instance
+redis_storage = RedisStorageManager(
+    host='redis-server.com', 
+    port=6379, 
+    db=1
+)
+```
+
+### Multiple Data Operations
+
+```python
+# Store multiple pieces of data under same unique key
+user_id = 456
+redis_storage.set_data(user_id, 'preferences', {'theme': 'dark', 'language': 'en'})
+redis_storage.set_data(user_id, 'cart', {'items': [1, 2, 3], 'total': 150.0})
+
+# Get all data for a user
+all_user_data = redis_storage.get_all_data(user_id)
+print(all_user_data)
+# {'preferences': {'theme': 'dark', 'language': 'en'}, 'cart': {'items': [1, 2, 3], 'total': 150.0}}
+
+# Update specific data
+redis_storage.update_data(user_id, 'preferences', {'theme': 'light', 'language': 'en'})
+
+# Pop data (read and remove)
+cart_data = redis_storage.pop_data(user_id, 'cart')
+print(cart_data)  # {'items': [1, 2, 3], 'total': 150.0}
+
+# Check remaining TTL
+ttl = redis_storage.get_ttl(user_id)
+print(f"TTL: {ttl} seconds")
+```
+
+### Data Management
+
+```python
+# Delete specific key
+redis_storage.delete_key(user_id, 'preferences')
+
+# Delete all data for a unique key
+redis_storage.delete_all_hash(user_id)
+
+# Check if data exists
+data = redis_storage.get_data(user_id, 'nonexistent_key')
+print(data)  # None
+```
 
 ***
 
-## Copyright:
-    --------------------------------------------------------
-    Licensed under the terms of the BSD 3-Clause License
-    (see LICENSE for details).
-    Copyright © 2018-2024, A.A. Suvorov
-    All rights reserved.
-    --------------------------------------------------------
+## API Reference
+
+### RedisStorageManager Class
+
+#### Constructor
+```python
+RedisStorageManager(host='localhost', port=6379, db=0)
+```
+
+#### Methods
+
+- **set_data(uniq_key, key, value, expiration=None)**  
+  Store data with optional expiration (in seconds)
+
+- **get_data(uniq_key, key, pop=False)**  
+  Retrieve data. Set `pop=True` to remove after reading
+
+- **get_all_data(uniq_key)**  
+  Retrieve all key-value pairs for a unique identifier
+
+- **update_data(uniq_key, key, value, expiration=None)**  
+  Update existing data (alias for set_data)
+
+- **pop_data(uniq_key, key)**  
+  Retrieve and remove data
+
+- **delete_key(uniq_key, key)**  
+  Remove specific key
+
+- **delete_all_hash(uniq_key)**  
+  Remove all data for a unique identifier
+
+- **get_ttl(uniq_key)**  
+  Get remaining time-to-live in seconds
+
+***
+
+## Use Cases
+
+### Session Management
+```python
+# Store user session
+def store_user_session(user_id, session_data):
+    redis_storage.set_data(
+        uniq_key=user_id,
+        key='session',
+        value=session_data,
+        expiration=3600  # 1 hour
+    )
+
+# Retrieve and validate session
+def get_valid_session(user_id):
+    session = redis_storage.get_data(user_id, 'session')
+    if session and session.get('valid_until') > time.time():
+        return session
+    return None
+```
+
+### Cache Management
+```python
+# Cache expensive computation results
+def get_cached_data(user_id, data_key, compute_function):
+    cached = redis_storage.get_data(user_id, data_key)
+    if cached is not None:
+        return cached
+    
+    # Compute and cache if not found
+    result = compute_function()
+    redis_storage.set_data(user_id, data_key, result, expiration=300)
+    return result
+```
+
+### Multi-tenant Data Isolation
+```python
+# Different tenants can use the same storage with different unique keys
+tenant_a_data = redis_storage.get_all_data('tenant_a')
+tenant_b_data = redis_storage.get_all_data('tenant_b')
+```
+
+***
+
+## Storage Structure
+
+The library uses Redis hashes with the following pattern:
+- Key format: `uniq:{unique_identifier}`
+- Field: Your specified key
+- Value: JSON-serialized data
+
+Example:
+```
+uniq:123 (Hash)
+  ├── profile → '{"name": "John", "age": 30}'
+  ├── session → '{"token": "abc123", "last_login": "2024-01-01"}'
+  └── preferences → '{"theme": "dark", "language": "en"}'
+```
+
+***
+
+## Error Handling
+
+The library handles Redis connection errors and JSON serialization/deserialization automatically. In case of connection issues, Redis-py will raise appropriate exceptions that you can catch in your application.
+
+```python
+try:
+    redis_storage.set_data(user_id, 'key', {'data': 'value'})
+except redis.ConnectionError as e:
+    print(f"Redis connection error: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+***
+
+## Performance Considerations
+
+- Uses Redis hashes for efficient storage of multiple related data
+- JSON serialization adds overhead but provides flexibility
+- Consider data size and expiration policies for optimal performance
+- Batch operations can be implemented by storing multiple keys under same unique identifier
+
+***
+
+## License
+
+This project is licensed under the BSD 3-Clause License - see the [LICENSE](LICENSE) file for details.
+
+***
+
+## Author
+
+**Alexander Suvorov**  
+- GitHub: [@smartlegionlab](https://github.com/smartlegionlab)
+- Package: [PyPI](https://pypi.org/project/smart-redis-storage/)
+
+***
+
+## Disclaimer of Liability
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+***
+
+## Copyright
+
+```
+--------------------------------------------------------
+Licensed under the terms of the BSD 3-Clause License
+(see LICENSE for details).
+Copyright © 2018-2025, Alexander Suvorov
+All rights reserved.
+--------------------------------------------------------
+```
