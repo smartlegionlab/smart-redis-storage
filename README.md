@@ -1,8 +1,8 @@
-# smart-redis-storage <sup>0.2.3</sup>
+# smart-redis-storage <sup>v1.0.0</sup>
 
 A lightweight and efficient Redis storage manager for Python applications. Provides simple CRUD (Create, Read, Update, Delete) operations with JSON serialization and hash-based data organization.
 
-***
+---
 
 [![PyPI Downloads](https://static.pepy.tech/badge/smart-redis-storage)](https://pepy.tech/projects/smart-redis-storage)
 ![GitHub top language](https://img.shields.io/github/languages/top/smartlegionlab/smart-redis-storage)
@@ -15,7 +15,7 @@ A lightweight and efficient Redis storage manager for Python applications. Provi
 [![GitHub watchers](https://img.shields.io/github/watchers/smartlegionlab/smart-redis-storage?style=social)](https://github.com/smartlegionlab/smart-redis-storage/)
 [![GitHub forks](https://img.shields.io/github/forks/smartlegionlab/smart-redis-storage?style=social)](https://github.com/smartlegionlab/smart-redis-storage/)
 
-***
+---
 
 ## Features
 
@@ -26,7 +26,17 @@ A lightweight and efficient Redis storage manager for Python applications. Provi
 - **Thread-safe**: Built on Redis-py, suitable for multi-threaded applications
 - **Flexible Data Structure**: Store multiple key-value pairs under a single unique identifier
 
-***
+---
+
+## ⚠️ Disclaimer
+
+**By using this software, you agree to the full disclaimer terms.**
+
+**Summary:** Software provided "AS IS" without warranty. You assume all risks.
+
+**Full legal disclaimer:** See [DISCLAIMER.md](https://github.com/smartlegionlab/smart-redis-storage/blob/master/DISCLAIMER.md)
+
+---
 
 ## Installation
 
@@ -40,7 +50,7 @@ pip install smart-redis-storage
 - Redis server
 - redis-py library
 
-***
+---
 
 ## Quick Start
 
@@ -66,12 +76,12 @@ print(profile)  # {'name': 'John', 'age': 30, 'email': 'john@example.com'}
 redis_storage.set_data(
     uniq_key=user_id,
     key='session_data',
-    value={'token': 'abc123', 'last_login': '2024-01-01'},
+    value={'token': 'abc123', 'last_login': '2026-01-01'},
     expiration=30
 )
 ```
 
-***
+---
 
 ## Advanced Usage
 
@@ -125,7 +135,7 @@ data = redis_storage.get_data(user_id, 'nonexistent_key')
 print(data)  # None
 ```
 
-***
+---
 
 ## API Reference
 
@@ -162,7 +172,7 @@ RedisStorageManager(host='localhost', port=6379, db=0)
 - **get_ttl(uniq_key)**  
   Get remaining time-to-live in seconds
 
-***
+---
 
 ## Use Cases
 
@@ -206,7 +216,7 @@ tenant_a_data = redis_storage.get_all_data('tenant_a')
 tenant_b_data = redis_storage.get_all_data('tenant_b')
 ```
 
-***
+---
 
 ## Storage Structure
 
@@ -219,11 +229,11 @@ Example:
 ```
 uniq:123 (Hash)
   ├── profile → '{"name": "John", "age": 30}'
-  ├── session → '{"token": "abc123", "last_login": "2024-01-01"}'
+  ├── session → '{"token": "abc123", "last_login": "2026-01-01"}'
   └── preferences → '{"theme": "dark", "language": "en"}'
 ```
 
-***
+---
 
 ## Error Handling
 
@@ -238,7 +248,7 @@ except Exception as e:
     print(f"Unexpected error: {e}")
 ```
 
-***
+---
 
 ## Performance Considerations
 
@@ -247,13 +257,13 @@ except Exception as e:
 - Consider data size and expiration policies for optimal performance
 - Batch operations can be implemented by storing multiple keys under same unique identifier
 
-***
+---
 
 ## License
 
-This project is licensed under the BSD 3-Clause License - see the [LICENSE](LICENSE) file for details.
+*Licensed under [BSD 3-Clause License](LICENSE) • Copyright (©) 2026, [Alexander Suvorov](https://github.com/smartlegionlab)*
 
-***
+---
 
 ## Author
 
@@ -261,21 +271,4 @@ This project is licensed under the BSD 3-Clause License - see the [LICENSE](LICE
 - GitHub: [@smartlegionlab](https://github.com/smartlegionlab)
 - Package: [PyPI](https://pypi.org/project/smart-redis-storage/)
 
-***
-
-## Disclaimer of Liability
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-***
-
-## Copyright
-
-```
---------------------------------------------------------
-Licensed under the terms of the BSD 3-Clause License
-(see LICENSE for details).
-Copyright © 2018-2025, Alexander Suvorov
-All rights reserved.
---------------------------------------------------------
-```
+---
